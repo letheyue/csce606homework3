@@ -10,16 +10,29 @@ class MoviesController < ApplicationController
     # will render app/views/movies/show.<extension> by default
   end
 
-  def index
-    if params[:title] == "character_ascending"
-      @movies = Movie.all.order(:title => "ASC")
+def index
+    @all_ratings = Movie.all_ratings
+    @ratings = params[:ratings]
+    if params[:ratings]
+      @key_ratings = params[:ratings].keys
+      if params[:title] == "character_ascending"
+        @movies = Movie.all.where(rating: @key_ratings).order(:title => "ASC")
+      elsif params[:Release_Date] == "character_ascending"
+        @movies = Movie.all.where(rating: @key_ratings).order(:Release_Date => "ASC")
+      else
+        @movies = Movie.all.where(rating: @key_ratings)
+      end
+    else
+      if params[:title] == "character_ascending"
+        @movies = Movie.all.order(:title => "ASC")
       elsif params[:Release_Date] == "character_ascending"
         @movies = Movie.all.order(:Release_Date => "ASC")
       else
         @movies = Movie.all
+      end
     end
-  end
-
+end
+  
   def new
     # default: render 'new' template
   end
