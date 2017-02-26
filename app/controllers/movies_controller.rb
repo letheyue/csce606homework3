@@ -12,25 +12,30 @@ class MoviesController < ApplicationController
 
 def index
     @all_ratings = Movie.all_ratings
-    @ratings = params[:ratings]
-    if params[:ratings]
-      @key_ratings = params[:ratings].keys
-      if params[:title] == "character_ascending"
-        @movies = Movie.all.where(rating: @key_ratings).order(:title => "ASC")
-      elsif params[:Release_Date] == "character_ascending"
-        @movies = Movie.all.where(rating: @key_ratings).order(:Release_Date => "ASC")
-      else
-        @movies = Movie.all.where(rating: @key_ratings)
-      end
-    else
-      if params[:title] == "character_ascending"
-        @movies = Movie.all.order(:title => "ASC")
-      elsif params[:Release_Date] == "character_ascending"
-        @movies = Movie.all.order(:Release_Date => "ASC")
-      else
-        @movies = Movie.all
-      end
+    if params[:sort_order]
+      session[:sort_order] = params[:sort_order]
+    elsif session[:sort_order]
+      params[:sort_order] = session[:sort_order]
+      flash.keep
+      redirect_to movies_path(params) and return
     end
+    
+    sort_order = session[:sort_order]
+    
+    if params[:ratings]
+      session[:ratings] = params[:ratings]
+      @checked_ratings = session[:ratings].keys
+    elsif session[:ratings]
+      params[:ratings] = session[:ratings]
+      @checked_ratings = session[:ratings].keys
+      flash.keep
+      redirect_to movies_path(params) and return
+    else
+      @checked_ratings = @all_ratings
+    end
+    
+    @movies = Movie.all.order(sort_order).where(rating: @checked_ratings)
+    
 end
   
   def new
